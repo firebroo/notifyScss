@@ -3,6 +3,7 @@
 
 
 ### Usage
+确保系统已经安装scss, node和ruby的都可以。
 1. make
 2. ./notify /scss/path
 
