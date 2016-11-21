@@ -53,35 +53,33 @@ concat_cmd(char* source, char* suffix_offset)
     strncpy(target, source, suffix_offset - source);
     strcat(target, ".css");
     sprintf(cmd, "scss %s %s", source, target);
-    strdup(cmd);
+    return strdup(cmd);
+}
+
+void handle_modify(char* source) {
+    char  *suffix_offset;
+
+    if ((suffix_offset = strrchr(source, '.')) != NULL) {
+        if (!strcmp(suffix_offset, ".scss")) {
+            printf("%s willed modify, will recompile!\n", source);
+            char* cmd = concat_cmd(source, suffix_offset);
+            exec_cmd(cmd);
+            free(cmd);
+        }
+    }
 }
 
 void 
 displayInotifyEvent(struct inotify_event *i)  
 {  
-    char  *suffix_offset;
+    char  source[1024];
 
     if(i->mask & IN_MODIFY) {
         if (i->len > 0) {
-            char  source[1024];
             sprintf(source, "%s%s", path, i->name);
-            if ((suffix_offset = strrchr(source, '.')) != NULL) {
-                if (!strcmp(suffix_offset, ".scss")) {
-                    printf("%s willed modify, will recompile!\n", source);
-                    char* cmd = concat_cmd(source, suffix_offset);
-                    exec_cmd(cmd);
-                    free(cmd);
-                }
-            }
+            handle_modify(source);
         } else {
-            if ((suffix_offset = strrchr(path, '.')) != NULL) {
-                if (!strcmp(suffix_offset, ".scss")) {
-                    printf("%s willed modify, will recompile!\n", path);
-                    char* cmd = concat_cmd(path, suffix_offset);
-                    exec_cmd(cmd);
-                    free(cmd);
-                }
-            } 
+            handle_modify(path);
         }
     }
 }  
